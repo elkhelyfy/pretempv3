@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .input-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .input-item label {
+            margin-right: 10px;
+            min-width: 220px;
+        }
+        .input-item input[type="text"] {
+            width: 100px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            padding: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        p#result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+    <script>
+        async function sendPredictionRequest() {
+            const inputIds = [
+                'temp8h', 'temp9h', 'dew8h', 'dew9h', 'humidity8h', 'humidity9h',
+                'pressure8h', 'pressure9h', 'windSpeed8h', 'windSpeed9h', 'windDir8h', 'windDir9h'
+            ];
+            
+            const inputData = inputIds.map(id => {
+                const input = document.getElementById(id);
+                return parseFloat(input.value);
+            }).filter(value => !isNaN(value));  // Filter out invalid numbers
+
+            if (inputData.length !== inputIds.length) {
+                document.getElementById('result').textContent = 'Please enter valid input data for all fields.';
+                return;
+            }
+            console.log(inputData);
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ input: inputData })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                if (result.error) {
+                    document.getElementById('result').textContent = 'Error: ' + result.error;
+                } else {
+                    document.getElementById('result').textContent = 'Prediction: ' + result.prediction;
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Prédiction de température</h1>
+    <div class="input-container">
+        <div class="input-item">
+            <label for="temp8h">Température à 8h :</label>
+            <input type="text" id="temp8h">
+        </div>
+        <div class="input-item">
+            <label for="temp9h">Température à 9h :</label>
+            <input type="text" id="temp9h">
+        </div>
+        <div class="input-item">
+            <label for="dew8h">Point de rosée à 8h :</label>
+            <input type="text" id="dew8h">
+        </div>
+        <div class="input-item">
+            <label for="dew9h">Point de rosée à 9h :</label>
+            <input type="text" id="dew9h">
+        </div>
+        <div class="input-item">
+            <label for="humidity8h">Humidité relative à 8h :</label>
+            <input type="text" id="humidity8h">
+        </div>
+        <div class="input-item">
+            <label for="humidity9h">Humidité relative à 9h :</label>
+            <input type="text" id="humidity9h">
+        </div>
+        <div class="input-item">
+            <label for="pressure8h">Pression atmosphérique à 8h :</label>
+            <input type="text" id="pressure8h">
+        </div>
+        <div class="input-item">
+            <label for="pressure9h">Pression atmosphérique à 9h :</label>
+            <input type="text" id="pressure9h">
+        </div>
+        <div class="input-item">
+            <label for="windSpeed8h">Vitesse du vent à 8h :</label>
+            <input type="text" id="windSpeed8h">
+        </div>
+        <div class="input-item">
+            <label for="windSpeed9h">Vitesse du vent à 9h :</label>
+            <input type="text" id="windSpeed9h">
+        </div>
+        <div class="input-item">
+            <label for="windDir8h">Direction du vent à 8h :</label>
+            <input type="text" id="windDir8h">
+        </div>
+        <div class="input-item">
+            <label for="windDir9h">Direction du vent à 9h :</label>
+            <input type="text" id="windDir9h">
+        </div>
+    </div>
+
+    <button onclick="sendPredictionRequest()">Prédire</button>
+    <p id="result"></p>
+</body>
+</html>
